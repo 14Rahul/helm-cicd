@@ -1,0 +1,136 @@
+deployment:
+  replicaCount: 1
+  image:
+    repository: 532968567499.dkr.ecr.us-east-2.amazonaws.com/porter
+    tag: "dev-latest"
+    pullPolicy: Always
+  containerPort: 8080
+  serviceAccountName: porter-sa
+  command: []  # ["python", "app.py"]
+  volumeMounts:
+  - name: efs-tmp
+    mountPath: /mnt/efs/tmp
+  volumes:
+  - name: efs-tmp
+    claimName: efs-porter-pvc
+  nodeSelector: {role: dev}
+  affinity: {}
+  tolerations: [
+  #  - key: "node-role"
+  #    operator: "Equal"
+  #    value: "worker"
+  #    effect: "NoSchedule"
+  ]
+  resources:
+    limits:
+      memory: "500Mi"
+      cpu: "500m"
+    requests:
+      cpu: "100m"
+      memory: "250Mi"
+  extraEnv:
+#    PROD_ENV_FLAG : "0"
+  securityContext:
+#    runAsUser: 1000
+#    runAsGroup: 1000
+#    fsGroup: 2000
+  livenessProbe:
+    httpGet:
+      path: /internal/api/v1/porter/dev/health/
+      port: 8080
+    initialDelaySeconds: 15
+    periodSeconds: 5
+  readinessProbe:
+#    httpGet:
+#      path: /readyz
+#      port: http
+#    initialDelaySeconds: 5
+#    periodSeconds: 10
+  preStop:
+#    command: #["bash", "-c", "sleep 5; /app/pronotes-py-server/scripts/prestop.sh > /proc/1/fd/1 2>&1"]
+
+persistence:
+  enabled: false
+  storageSize: 5Gi
+  accessMode: ReadWriteMany
+  reclaimPolicy: Retain
+  storageClass: oh-efs-sc
+  csiDriver: efs.csi.aws.com
+  volumeHandle: fs-3bd5fc42:/tmp
+
+
+services:
+  enabled: true
+  servicePort: 80
+  list:
+  - name: porter
+    type: NodePort
+    port: 8080
+#  - name: service2
+#    type: NodePort
+#    port: 8081
+#  - name: service3
+#    type: LoadBalancer
+#    port: 8082
+
+ingress:
+  InternalIngress:
+    enabled: true # Set to True to create internal ALB
+    groupname: internalapis-dev # options are internalapis, apps-prod, apps-dev, apps-qa, apps-staging
+    listenerport: "\'[{\"HTTPS\": 443}]\'"  # Remove if port is not required
+    certificatearn: arn:aws:acm:us-east-2:532968567499:certificate/c7bbed29-1d09-43b7-9664-41601e43f186 # Remove if certificate is not required
+    healthcheckpath: /internal/api/v1/porter/dev/health/ # Add the Healthcheck path of application
+    subnets: subnet-0deffc104e031ba1e, subnet-01f783605e41b71ba, subnet-08db2015849f45d05 # Mention the subnets for the ingress
+    rules:
+      - host: backend-services-dev.aws.prodigaltech.com # Remove the line if hostname is not required
+        http:
+          paths:
+          - path: /internal/api/v1/porter/ # Add the application path of application
+            pathType: Prefix
+            backend:
+              service:
+                name: porter # Name of the service
+                port:
+                  number: 80
+  ExternalIngress:
+    enabled: false # Set to True to create external ALB
+    groupname: internalapis # options are internalapis, apps-prod, apps-dev, apps-qa, apps-staging
+    listenerport: "\'[{\"HTTPS\": 443}, {\"HTTP\": 80}]\'"  # Remove if port is not required
+    certificatearn: arn:aws:acm:us-east-2:532968567499:certificate/2be8e497-84d5-4ec1-b923-b9dac879a057 # Remove if certificate is not required
+    healthcheckpath: /api/v1/porter/health # Add the Healthcheck path of application
+    subnets: subnet-0b87eadae8dbb2bc3, subnet-093cde2200557dd76 # Mention the subnets for the ingress
+    rules:
+      - host: app.example.com # Remove the line if hostname is not required
+        http:
+          paths:
+          - path: /api/v1/service # Add the application path of application
+            pathType: Prefix
+            backend:
+              service:
+                name: service1 # Name of the service
+                port:
+                  number: 80
+
+# Confirmation from mahesh required
+autoscaling:
+  enabled: true
+  minReplicaCount: 1
+  maxReplicaCount: 10
+  triggers:
+  - type: redis
+    metadata:
+      address: bifrost-dev-001.ljl3mh.0001.use2.cache.amazonaws.com:6379
+      password: ""
+      listName: active_porter_requests
+      listLength: "50"
+      databaseIndex: "1"
+
+secret:
+  enabled: false
+
+configMap:
+  enabled: false
+  data:
+    key1: value1
+    key2: value2
+    key3: value3

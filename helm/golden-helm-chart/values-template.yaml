@@ -1,0 +1,142 @@
+deployment:
+  replicaCount: 1
+  image:
+    repository: 532968567499.dkr.ecr.us-east-2.amazonaws.com/bubble
+    tag: "dev-latest"
+    pullPolicy: Always
+  containerPort: 80
+  serviceAccountName: ""
+  command: []  # ["python", "app.py"]
+  volumeMounts: 
+#  - name: bubble-volume  # Should be in format <DeploymentName-volume>
+#    mountPath: /mnt/efs/
+  volumes: 
+#  - name: bubble-volume  # Should be in format <DeploymentName-volume>
+#    claimName: bubble-claim #  Should be in format <DeploymentName-claim>
+  nodeSelector: {rolename: dev} 
+  affinity: {}
+  tolerations: [
+  #  - key: "node-role"
+  #    operator: "Equal"
+  #    value: "worker"
+  #    effect: "NoSchedule"
+  ]
+  resources:
+    limits:
+      cpu: "1"
+      memory: "512Mi"
+    requests:
+      cpu: "500m"
+      memory: "256Mi"
+  extraEnv:
+#    APP_ENV: "Dev"
+#    PRONOTES_BASE_URL: "http://pps.dev.us-east2.aws.prodigaltech.com"
+  securityContext: 
+#    runAsUser: 1000
+#    runAsGroup: 1000
+#    fsGroup: 2000
+  livenessProbe:
+#    httpGet:
+#      path: /healthz
+#      port: http
+#    initialDelaySeconds: 10
+#    periodSeconds: 15
+  readinessProbe:
+#    httpGet:
+#      path: /readyz
+#      port: http
+#    initialDelaySeconds: 5
+#    periodSeconds: 10
+  preStop:
+#    command: #["bash", "-c", "sleep 5; /app/pronotes-py-server/scripts/prestop.sh > /proc/1/fd/1 2>&1"]
+  
+persistence:
+  enabled: false
+  storageSize: 5Gi
+  accessMode: ReadWriteOnce
+  reclaimPolicy: Retain
+  storageClass: oh-efs-sc
+  csiDriver: efs.csi.aws.com
+  volumeHandle: fs-3bd5fc42:/
+
+
+services:
+  enabled: true
+  servicePort: 80
+  list:
+  - name: bubble 
+    type: NodePort
+    port: 80
+#  - name: service2
+#    type: NodePort
+#    port: 8081
+#  - name: service3
+#    type: LoadBalancer
+#    port: 8082
+
+ingress:
+  InternalIngress: 
+    enabled: false # Set to True to create internal ALB
+    groupname: internalapis # options are internalapis, apps-prod, apps-dev, apps-qa, apps-staging
+    listenerport: "\'[{\"HTTPS\": 443}, {\"HTTP\": 80}]\'"  # Remove if port is not required
+    certificatearn: arn:aws:acm:us-east-2:532968567499:certificate/2be8e497-84d5-4ec1-b923-b9dac879a057 # Remove if certificate is not required
+    healthcheckpath: /api/v1/porter/health # Add the Healthcheck path of application
+    subnets: subnet-0b87eadae8dbb2bc3, subnet-093cde2200557dd76 # Mention the subnets for the ingress
+    rules:
+      - host: app.example.com # Remove the line if hostname is not required
+        http:
+          paths:
+          - path: /api/v1/service # Add the application path of application
+            pathType: Prefix
+            backend:
+              service:
+                name: service1 # Name of the service
+                port:
+                  number: 80
+  ExternalIngress:
+    enabled: false # Set to True to create external ALB
+    groupname: internalapis # options are internalapis, apps-prod, apps-dev, apps-qa, apps-staging
+    listenerport: "\'[{\"HTTPS\": 443}, {\"HTTP\": 80}]\'"  # Remove if port is not required
+    certificatearn: arn:aws:acm:us-east-2:532968567499:certificate/2be8e497-84d5-4ec1-b923-b9dac879a057 # Remove if certificate is not required
+    healthcheckpath: /api/v1/porter/health # Add the Healthcheck path of application
+    subnets: subnet-0b87eadae8dbb2bc3, subnet-093cde2200557dd76 # Mention the subnets for the ingress
+    rules:
+      - host: app.example.com # Remove the line if hostname is not required
+        http:
+          paths:
+          - path: /api/v1/service # Add the application path of application
+            pathType: Prefix
+            backend:
+              service:
+                name: service1 # Name of the service
+                port:
+                  number: 80
+
+autoscaling:
+  enabled: false
+  minReplicaCount: 1
+  maxReplicaCount: 5
+  triggers:
+  - type: cpu
+    metadata:
+      type: Utilization
+      value: "80"
+#  - type: redis
+#    metadata:
+#      address: ingestion-pipeline-prod-cache.ljl3mh.ng.0001.use2.cache.amazonaws.com:6379
+#      password: ""
+#      listName: active_porter_requests
+#      listLength: "50"
+#      databaseIndex: "1"    
+
+configMap:
+  enabled: false
+  data:
+    key1: value1
+    key2: value2
+    key3: value3
+
+secret:
+  enabled: false
+  data:
+    MY_APP_SECRET: dGhpcyBpcyBhIHNlY3JldCBzZWNyZXQK
