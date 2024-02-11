@@ -1,0 +1,22 @@
+{{- if .Values.services.enabled }}
+{{- $releaseName := .Release.Name }}
+{{- $servicePort := .Values.services.servicePort }}
+{{- range $service := .Values.services.list }}
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    alb.ingress.kubernetes.io/target-type: ip
+  name: {{ $service.name }}
+  labels:
+    app: {{ $releaseName }}
+spec:
+  selector:
+    app: {{ $releaseName }}
+  ports:
+    - protocol: TCP
+      port: {{ $servicePort }}
+      targetPort: {{ $service.port }}
+  type: {{ $service.type }}
+{{- end }}
+{{- end }}

@@ -1,0 +1,37 @@
+{{- if .Values.ingress.InternalIngress.enabled }}
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ .Release.Name }}-internal
+  annotations:
+    alb.ingress.kubernetes.io/scheme: internal
+    alb.ingress.kubernetes.io/group.name: {{ .Values.ingress.InternalIngress.groupname }}
+    alb.ingress.kubernetes.io/listen-ports: {{ .Values.ingress.InternalIngress.listenerport }}
+    alb.ingress.kubernetes.io/certificate-arn: {{ .Values.ingress.InternalIngress.certificatearn }}
+    alb.ingress.kubernetes.io/healthcheck-path: {{ .Values.ingress.InternalIngress.healthcheckpath }}
+    alb.ingress.kubernetes.io/ssl-policy: ELBSecurityPolicy-TLS13-1-2-2021-06
+    alb.ingress.kubernetes.io/subnets: {{ .Values.ingress.InternalIngress.subnets }}
+spec:
+  ingressClassName: alb
+  rules:
+  {{- toYaml .Values.ingress.InternalIngress.rules | nindent 2 }}
+{{- end }}
+---
+{{- if .Values.ingress.ExternalIngress.enabled }}
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ .Release.Name }}-external
+  annotations:
+    alb.ingress.kubernetes.io/scheme: internet-facing
+    alb.ingress.kubernetes.io/group.name: {{ .Values.ingress.ExternalIngress.groupname }}
+    alb.ingress.kubernetes.io/listen-ports: {{ .Values.ingress.ExternalIngress.listenerport }}
+    alb.ingress.kubernetes.io/certificate-arn: {{ .Values.ingress.ExternalIngress.certificatearn }}
+    alb.ingress.kubernetes.io/healthcheck-path: {{ .Values.ingress.ExternalIngress.healthcheckpath }}
+    alb.ingress.kubernetes.io/ssl-policy: ELBSecurityPolicy-TLS13-1-2-2021-06
+    alb.ingress.kubernetes.io/subnets: {{ .Values.ingress.ExternalIngress.subnets }}
+spec:
+  ingressClassName: alb
+  rules:
+  {{- toYaml .Values.ingress.ExternalIngress.rules | nindent 2 }}
+{{- end }}

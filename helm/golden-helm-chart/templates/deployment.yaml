@@ -1,0 +1,104 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}
+  labels:
+    app: {{ .Release.Name }}
+spec:
+  replicas: {{ .Values.deployment.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ .Release.Name }}
+  template:
+    metadata:
+      annotations:
+        rollme: {{ randAlphaNum 5 | quote }}
+      labels:
+        app: {{ .Release.Name }}
+    spec:
+      {{- if .Values.deployment.securityContext }}
+      securityContext:
+        {{- toYaml .Values.deployment.securityContext | nindent 8 }}
+      {{- end }}
+      {{- if .Values.deployment.serviceAccountName}}
+      serviceAccountName: {{ .Values.deployment.serviceAccountName }}
+      {{- end }}
+      containers:
+        - name: {{ .Release.Name }}
+          image: "{{ .Values.deployment.image.repository }}:{{ .Values.deployment.image.tag }}"
+          imagePullPolicy: {{ .Values.deployment.image.pullPolicy }}
+          {{- if .Values.deployment.command }}
+          command:
+            {{- range .Values.deployment.command }}
+            - {{ . }}
+            {{- end }}
+          {{- end }}
+          {{- if .Values.deployment.extraEnv }}
+          env:
+          {{- range $key, $value := .Values.deployment.extraEnv }}
+          - name: {{ $key }}
+            value: {{ $value | quote }}
+          {{- end }}
+          {{- end }}
+          ports:
+            - containerPort: {{ .Values.deployment.containerPort }}
+              name: http
+              protocol: TCP
+          {{- if .Values.deployment.volumeMounts }}
+          volumeMounts:
+          {{- range .Values.deployment.volumeMounts }}
+          - name: {{ .name }}
+            mountPath: {{ .mountPath }}
+            {{- with .subPath }}
+            subPath: {{ . }}
+            {{- end }}
+          {{- end }}
+          {{- end }}
+          {{- if .Values.deployment.livenessProbe }}
+          livenessProbe:
+            {{- toYaml .Values.deployment.livenessProbe | nindent 12 }}
+          {{- end }}
+          {{- if .Values.deployment.readinessProbe }}
+          readinessProbe:
+            {{- toYaml .Values.deployment.readinessProbe | nindent 12 }}
+          {{- end }}
+          resources:
+            {{- toYaml .Values.deployment.resources | nindent 12 }}
+          {{- if .Values.deployment.lifecycle }}
+          lifecycle:
+            preStop:
+              exec:
+                command:
+                  {{  range .Values.deployment.preStop.command }}
+                   - {{ . }}
+                  {{ end }}
+          {{- end }}
+      {{- if .Values.deployment.volumes }}
+      volumes:
+      {{- range .Values.deployment.volumes }}
+      - name: {{ .name }}
+        {{- with .emptyDir }}
+        emptyDir: {}
+        {{- end }}
+        persistentVolumeClaim:
+          claimName: {{ .claimName }}
+        {{- with .hostPath }}
+        hostPath:
+          path: {{ .path }}
+        {{- end }}
+        {{- with .configMap }}
+        configMap:
+          name: {{ .name }}
+        {{- end }}
+        {{- with .secret }}
+        secret:
+          secretName: {{ .name }}
+        {{- end }}
+      {{- end }}
+      {{- end }}
+      nodeSelector:
+        {{- toYaml .Values.deployment.nodeSelector | nindent 8 }}
+      affinity:
+        {{- toYaml .Values.deployment.affinity | nindent 8 }}
+      tolerations:
+        {{- toYaml .Values.deployment.tolerations | nindent 8 }}

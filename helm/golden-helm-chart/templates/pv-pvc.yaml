@@ -1,0 +1,29 @@
+{{- if .Values.persistence.enabled }}
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: {{ .Release.Name }}-volume
+spec:
+  capacity:
+    storage: {{ .Values.persistence.storageSize }}
+  volumeMode: Filesystem
+  accessModes:
+    - {{ .Values.persistence.accessMode }}
+  persistentVolumeReclaimPolicy: {{ .Values.persistence.reclaimPolicy }}
+  storageClassName: {{ .Values.persistence.storageClass }}
+  csi:
+    driver: {{ .Values.persistence.csiDriver }}
+    volumeHandle: {{ .Values.persistence.volumeHandle }}
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ .Release.Name }}-claim
+spec:
+  accessModes:
+    - {{ .Values.persistence.accessMode }}
+  storageClassName: {{ .Values.persistence.storageClass }}
+  resources:
+    requests:
+      storage: {{ .Values.persistence.storageSize }}
+{{- end }}
