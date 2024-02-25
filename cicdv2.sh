@@ -84,7 +84,7 @@ build_and_push_image() {
   cd "$REPO_HOME/repo/" || log_and_exit "Failed to change to repo directory"
   sudo docker ps
   echo "Logging in to AWS ECR"
-  aws ecr get-login-password --region "$REGION" | docker login --username AWS --password-stdin "532968567499.dkr.ecr.$REGION.amazonaws.com"
+  aws ecr get-login-password --region "$REGION" | sudo docker login --username AWS --password-stdin "532968567499.dkr.ecr.$REGION.amazonaws.com"
   aws codeartifact login --tool pip --repository propy --domain prodigaltech --domain-owner 532968567499 --region ap-south-1
 #  echo "Pulling the latest image from ECR..."
 #  docker pull "$ecr_repo_uri:$IMAGE_TAG" || log_and_exit "Failed to pull image"
