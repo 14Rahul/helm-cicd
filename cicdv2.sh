@@ -44,12 +44,12 @@ log_and_exit() {
 
 select_eks_cluster() {
     if [ "$ENV" == "dev" ] || [ "$ENV" == "qa" ]; then
-        echo "Logging in to Dev EKS in US Region"
-        aws eks update-kubeconfig --name OhEKSDevInternal --region ap-south-1 --role-arn arn:aws:iam::532968567499:role/admin-role-OhEKSDevInternal
+        echo "Logging in to Dev EKS in Mumbai Region"
+        aws eks update-kubeconfig --name Github-Runner-k8s --region ap-south-1 --role-arn arn:aws:iam::532968567499:role/Github-Runner-k8s-admin
     elif [ "$ENV" == "prod" ]; then
         if [ "$REGION" == "ap-south-1" ]; then
             echo "Logging in Prod EKS in US Region"
-            aws eks update-kubeconfig --name Github-Runner-k8s --region ap-south-1 --role-arn arn:aws:iam::532968567499:role/admin-role-OhEKSIntApis
+            aws eks update-kubeconfig --name Github-Runner-k8s --region ap-south-1 --role-arn arn:aws:iam::532968567499:role/Github-Runner-k8s-admin
         elif [ "$REGION" == "ca-central-1" ]; then
             echo "Logging in Prod EKS in CA Region"
             aws eks update-kubeconfig --name CaEKSInf1 --region ca-central-1 --role-arn arn:aws:iam::532968567499:role/admin-role-CaEKSInf1
