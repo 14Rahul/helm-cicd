@@ -1,8 +1,8 @@
 deployment:
   replicaCount: 1
   image:
-    repository: 532968567499.dkr.ecr.ap-south-1.amazonaws.com/cicd-test
-    tag: "latest"
+    repository: 532968567499.dkr.ecr.ap-south-1.amazonaws.com/nginx
+    tag: "dev-latest"
     pullPolicy: Always
   containerPort: 80
   serviceAccountName: 
