@@ -82,8 +82,8 @@ build_and_push_image() {
   ecr_repo_uri="532968567499.dkr.ecr.$REGION.amazonaws.com/$SERVICE"
   
   cd "$REPO_HOME/repo/" || log_and_exit "Failed to change to repo directory"
-  whoami
   echo "Logging in to AWS ECR"
+  echo 'aws ecr get-login-password --region "$REGION" | docker login --username AWS --password-stdin "532968567499.dkr.ecr.$REGION.amazonaws.com"'
   aws ecr get-login-password --region "$REGION" | docker login --username AWS --password-stdin "532968567499.dkr.ecr.$REGION.amazonaws.com"
   aws codeartifact login --tool pip --repository propy --domain prodigaltech --domain-owner 532968567499 --region ap-south-1
 #  echo "Pulling the latest image from ECR..."
