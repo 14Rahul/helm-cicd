@@ -91,10 +91,10 @@ build_and_push_image() {
 
   echo "Building and tagging the Docker image..."
   #docker buildx build --cache-from "$ecr_repo_uri:$IMAGE_TAG" --cache-to type=inline "$ecr_repo_name:$commit_sha" -t "$ecr_repo_name:$IMAGE_TAG" "$REPO_PATH" 
-  docker build --build-arg DEPLOYMENT_ENV=$ENV  -t "$ecr_repo_uri:$IMAGE_TAG" -f "$REPO_HOME/repo/$DOCKER_PATH/Dockerfile" . || log_and_exit "Failed to build image"
+  sudo docker build --build-arg DEPLOYMENT_ENV=$ENV  -t "$ecr_repo_uri:$IMAGE_TAG" -f "$REPO_HOME/repo/$DOCKER_PATH/Dockerfile" . || log_and_exit "Failed to build image"
 
   echo "Pushing the Docker image to ECR..."
-  docker push "$ecr_repo_uri:$IMAGE_TAG" || log_and_exit "Failed to push image"
+  sudo docker push "$ecr_repo_uri:$IMAGE_TAG" || log_and_exit "Failed to push image"
 #  docker push "$ecr_repo_uri:$COMMIT" || log_and_exit "Failed to push image"
   #docker push "$ecr_repo_uri:latest" || log_and_exit "Failed to push image"
 
