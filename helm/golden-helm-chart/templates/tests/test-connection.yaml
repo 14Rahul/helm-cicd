@@ -3,7 +3,7 @@ kind: Pod
 metadata:
   name: "{{ .Release.Name }}-test-connection"
   labels:
-    {{ .Release.Name }}
+    app: {{ .Release.Name }}
   annotations:
     "helm.sh/hook": test
 spec:
@@ -11,5 +11,5 @@ spec:
     - name: wget
       image: busybox
       command: ['wget']
-      args: ['{{ .Release.Name }}:{{ .Values.services.service.port }}']
+      args: ['{{ .Release.Name }}:{{ .Values.services.servicePort }}']
   restartPolicy: Never
