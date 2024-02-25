@@ -11,8 +11,8 @@ SHA=$7
 COMMIT="commit-$SHA"
 NAMESPACE=$8
 FREEZE=$9
-PAT=${10}
-REPO_NAME=${11}
+#PAT=${10}
+REPO_NAME=${10}
 
 echo "Region: $REGION"
 echo "SERVICE: $SERVICE"
@@ -25,7 +25,7 @@ echo "SHA: $SHA"
 echo "COMMIT: $COMMIT"
 echo "NAMESPACE: $NAMESPACE"
 echo "FREEZE: $FREEZE"
-echo "PAT: $PAT"
+#echo "PAT: $PAT"
 echo "REPO_NAME: $REPO_NAME"
 
 set -e
