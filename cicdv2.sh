@@ -103,12 +103,14 @@ build_and_push_image() {
 deploy() {
     echo "Deploying $SERVICE to $ENV"
     cd "$REPO_HOME/helm-cicd/helm"
+    echo 'helm upgrade --install "$SERVICE" golden-helm-chart -f "$SERVICE/$REGION/$ENV.yaml" --set deployment.image.tag="$IMAGE_TAG" -n "$NAMESPACE" --create-namespace --wait --timeout 150s || log_and_exit "Helm upgrade failed"'
     helm upgrade --install "$SERVICE" golden-helm-chart -f "$SERVICE/$REGION/$ENV.yaml" --set deployment.image.tag="$IMAGE_TAG" -n "$NAMESPACE" --create-namespace --wait --timeout 150s || log_and_exit "Helm upgrade failed"
 }
 
 deploy_only() {
     echo "Deploying $SERVICE to $ENV"
     cd "$REPO_HOME/helm-cicd/helm"
+    echo 'helm upgrade --install "$SERVICE" golden-helm-chart -f "$SERVICE/$REGION/$ENV.yaml" --set deployment.image.tag="$IMAGE_TAG" -n "$NAMESPACE" --create-namespace --force --wait --timeout 300s || log_and_exit "Helm upgrade failed"'
     helm upgrade --install "$SERVICE" golden-helm-chart -f "$SERVICE/$REGION/$ENV.yaml" --set deployment.image.tag="$IMAGE_TAG" -n "$NAMESPACE" --create-namespace --force --wait --timeout 300s || log_and_exit "Helm upgrade failed"
 }
 
