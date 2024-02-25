@@ -56,7 +56,7 @@ persistence:
   reclaimPolicy: Retain
   storageClass: oh-efs-sc
   csiDriver: efs.csi.aws.com
-  volumeHandle: fs-0fd9965de6e535918:/tmp
+  volumeHandle: fs-0fd9965de6e535918:/
 
 
 services:
