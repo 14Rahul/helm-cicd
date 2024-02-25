@@ -12,7 +12,7 @@ deployment:
     mountPath: /mnt/efs/tmp
   volumes:
   - name: efs-tmp
-    claimName: efs-porter-pvc
+    claimName: efs-nginx-pvc
   nodeSelector: {role: workers}
   affinity: {}
   tolerations: [
@@ -50,13 +50,13 @@ deployment:
 #    command: #["bash", "-c", "sleep 5; /app/pronotes-py-server/scripts/prestop.sh > /proc/1/fd/1 2>&1"]
 
 persistence:
-  enabled: false
+  enabled: true
   storageSize: 5Gi
   accessMode: ReadWriteMany
   reclaimPolicy: Retain
   storageClass: oh-efs-sc
   csiDriver: efs.csi.aws.com
-  volumeHandle: fs-3bd5fc42:/tmp
+  volumeHandle: fs-0fd9965de6e535918:/tmp
 
 
 services:
