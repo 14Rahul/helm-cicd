@@ -8,11 +8,11 @@ deployment:
   serviceAccountName: 
   command: []  # ["python", "app.py"]
   volumeMounts:
-  - name: efs-tmp
-    mountPath: /mnt/efs/tmp
-  volumes:
-  - name: efs-tmp
-    claimName: efs-nginx-pvc
+  - name: nginx-volume  # Should be in format <DeploymentName-volume>
+    mountPath: /mnt/efs/
+  volumes: 
+  - name: nginx-volume  # Should be in format <DeploymentName-volume>
+    claimName: nginx-claim #  Should be in format <DeploymentName-claim>
   nodeSelector: {role: workers}
   affinity: {}
   tolerations: [
