@@ -30,7 +30,7 @@ echo "REPO_NAME: $REPO_NAME"
 
 set -e
 
-if [ -z "$REGION" ] || [ -z "$SERVICE" ] || [ -z "$BRANCH" ] || [ -z "$ENV" ] || [ -z "$REPO_HOME" ] || [ -z "$DOCKER_PATH" ] || [ -z "$SHA" ] || [ -z "$NAMESPACE" ] || [ -z "$PAT" ] || [ -z "$REPO_NAME" ]; then
+if [ -z "$REGION" ] || [ -z "$SERVICE" ] || [ -z "$BRANCH" ] || [ -z "$ENV" ] || [ -z "$REPO_HOME" ] || [ -z "$DOCKER_PATH" ] || [ -z "$SHA" ] || [ -z "$NAMESPACE" ] || [ -z "$REPO_NAME" ]; then
     echo "Missing required parameters. Exiting."
     exit 1
 fi
